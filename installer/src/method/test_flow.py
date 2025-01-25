@@ -52,18 +52,20 @@ class TestFlow:
         canvas = self.element.getElement(by='id', value="price-7550")
 
         # JavaScriptを使用してCanvasの内容をBase64データとして取得
-        image_data = self.chrome.execute_script("""
+        # こういう形式のデータになる　→　data:image/png;base64,iVBORw0KGgoAAAANSUh
+        base_64_image_data = self.chrome.execute_script("""
             const canvas = arguments[0];
             return canvas.toDataURL('image/png');
         """, canvas)
 
-        # "data:image/png;base64," の部分を削除
-        image_data = image_data.split(",")[1]
 
-        # Base64データを画像ファイルとして保存
+        # "data:image/png;base64," の部分を削除
+        base_64_image_data = base_64_image_data.split(",")[1]
+
+        # Base64データを画像ファイルとして保存（デコードして保存→バイナリーデータになってる）
         image_data_name = "canvas_image.png"
         with open(image_data_name, "wb") as image_file:
-            image_file.write(base64.b64decode(image_data))
+            image_file.write(base64.b64decode(base_64_image_data))
 
         print(f"画像が保存されました: {image_data_name}")
 
@@ -103,6 +105,32 @@ class TestFlow:
             print(f"抽出された価格: {price}")
         else:
             print("価格情報が見つかりませんでした")
+
+
+# ----------------------------------------------------------------------------------
+
+
+    def _change_canvas_data(self, canvas_data: str):
+
+        # JavaScriptを使用してCanvasの内容をBase64データとして取得
+        # こういう形式のデータになる　→　data:image/png;base64,iVBORw0KGgoAAAANSUh
+        base_64_image_data = self.chrome.execute_script("""
+            const canvas = arguments[0];
+            return canvas.toDataURL('image/png');
+        """, canvas_data)
+
+
+
+
+        # "data:image/png;base64," の部分を削除
+        base_64_image_data = base_64_image_data.split(",")[1]
+
+        # Base64データを画像ファイルとして保存（デコードして保存→バイナリーデータになってる）
+        image_data_name = "canvas_image.png"
+        with open(image_data_name, "wb") as image_file:
+            image_file.write(base64.b64decode(base_64_image_data))
+
+
 
 
 if __name__ == '__main__':
